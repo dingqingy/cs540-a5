@@ -1,0 +1,139 @@
+\documentclass{article}
+
+\usepackage{fullpage}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{parskip}
+\usepackage{amssymb}
+\usepackage{nicefrac}
+\usepackage{listings} % For displaying code
+\usepackage{algorithm2e} % pseudo-code
+
+% Answers
+\def\ans#1{\par\gre{Answer: #1}}
+%\def\ans#1{} % Comment this line to produce document with answers
+
+% Colors
+\definecolor{blu}{rgb}{0,0,1}
+\def\blu#1{{\color{blu}#1}}
+\definecolor{gre}{rgb}{0,.5,0}
+\def\gre#1{{\color{gre}#1}}
+\definecolor{red}{rgb}{1,0,0}
+\def\red#1{{\color{red}#1}}
+\def\norm#1{\|#1\|}
+
+% Math
+\def\R{\mathbb{R}}
+\def\argmax{\mathop{\rm arg\,max}}
+\newcommand{\argmin}[1]{\mathop{\hbox{argmin}}_{#1}}
+\newcommand{\mat}[1]{\begin{bmatrix}#1\end{bmatrix}}
+\newcommand{\alignStar}[1]{\begin{align*}#1\end{align*}}
+\def\half{\frac 1 2}
+\def\cond{\; | \;}
+
+% LaTeX
+\newcommand{\fig}[2]{\includegraphics[width=#1\textwidth]{a5f/#2}}
+\newcommand{\centerfig}[2]{\begin{center}\includegraphics[width=#1\textwidth]{a5f/#2}\end{center}}
+\def\items#1{\begin{itemize}#1\end{itemize}}
+\def\enum#1{\begin{enumerate}#1\end{enumerate}}
+
+
+\begin{document}
+
+\title{CPSC 540 Assignment 5 (due April 5 at midnight)}
+\author{}
+\date{}
+\maketitle
+\vspace{-4em}
+
+The assignment instructions are the same as for the previous assignment.
+
+
+\blu{\enum{
+\item Name(s):
+\item Student ID(s):
+}}
+
+
+\section{Undirected Graphical Models}
+
+\subsection{Conditional UGM}
+
+Consider modeling the dependencies between sets of binary variables $x_j$ and $y_j$ with the following UGM which is a variation on a stacked RBM:
+%\centerfig{.6}{weirdRBM}
+Computing univariate marginals in this model will be NP-hard in general, but the graph structure allows efficient block updates by conditioning on suitable subsets of the variables (this could be useful for designing approximate inference methods).
+For each of the conditioning scenarios below, \blu{draw the conditional UGM and informally comment on how expensive it would be to compute univariate marginals} (for all variables) in the conditional UGM.
+\enum{
+\item Conditioning on all the $x$ and $h$ values.
+\item Conditioning on all the $z$ and $y$ values.
+\item Conditioning on all the $x$ and $z$ values.
+}
+
+
+
+\subsection{Fitting a UGM to PINs}
+
+
+The function \emph{example\_UGM.jl} loads a dataset $X$ containing samples of PIN numbers, based on the probabilities from the article at this URL: \url{http://www.datagenetics.com/blog/september32012}.\footnote{I got the probabilities from reverse-engineered heatmap here: \url{http://jemore.free.fr/wordpress/?p=73}.}
+
+This function fits a UGM model to the dataset, where all node/edge parameters are untied and the graph is empty. It then performs decoding/inference/sampling in the fitted model. The decoding is reasonable (it's $x= \mat{1& 2 & 3 & 4}$) and the univariate marginals are reasonable (it says the first number is $1$ approximately 40\% of the time and the last number is 4 approximately 20\% of the time), but because it assumes the variables are independent we can see that this is not a very good model:
+\enum{
+\item The sampler doesn't tend to generate the decoding ($x= \mat{1& 2 & 3 & 4}$) as often as we would expect. Since it happens in more than 1/10 of the training examples, we should be seeing it in more than 1/10 of the samples.
+\item Conditioned on the first three numbers being $1 \; 2 \; 3$, the probability that the last number is 4 is only around 20\%, whereas in the data it's more than 90\% in this scenario.
+}
+In this question, you'll explore using (non-degenerate UGMs) to try to fix the above issues:
+\enum{
+\item \blu{Write an equation for $p(x_1, x_2, x_3, x_4)$ in terms of the parameters $w$ being used by the code.}
+\item \blu{How would the answer to the previous question change (in terms of $w$ and $v$) if we use \texttt{E = [1 2]}?}
+\item Modify the demo to use a chain-structured dependency. \blu{Comment on whether this fixes each of the above 2 issues.}
+\item Modify the demo to use a completely-connected graph. \blu{Comment on whether this fixes each of the above 2 issues.}
+\item \blu{What would the effect of higher-order potentials be? What would a disdavantage of higher-order potentials be?}
+}
+If you want to further explore UGMs, there are quite a few Matlab demos on the UGM webpage:\\
+\url{https://www.cs.ubc.ca/~schmidtm/Software/UGM.html}\\
+that you can go through which cover all sorts of things like approximate inference and CRFs.
+
+
+
+\section{Bayesian Inference}
+
+Coming soon...
+
+
+
+
+\section{Very-Short Answer Questions}
+
+Coming soon...
+
+
+\section{Literature Survey}
+
+Reading academic papers is a skill that takes practice. When you first start out reading papers, you may find that you need to re-read things several times before you understand them, or that details will still be very fuzzy even after you've put a great amount of effort into trying to understand a paper. Don't panic, this is normal.
+
+Even if you are used to reading papers from your particular sub-area, it can be challenging to read papers about a completely different topic. Usually, people in different areas use different language/notation and focus on very different issues. Nevertheless, many of the most-successful people in academia and industry are those that are able to understand/adapt ideas from different areas. (There are a ton of smart people in the world working on all sorts of amazing things, it's good to know how to communicate with as many of them as possible.)
+
+A common technique when trying to understand a new topic (or reading scientific papers for the first time) is to read and write notes on 10 papers on the topic. When you read the first paper, you'll often find that it's hard to follow. This can make reading through it take a long time and might still leave you feeling that many things don't make sense; keep reading and trying to take notes. When you get to the second paper, it might still be very hard to follow. But when you start getting to the 8th or 9th paper, things often start making more sense. You'll start to form an impression of what the influential works in the area are, you'll start getting to used to the language and jargon, you'll start to understand what the main issues that people who work on the topic care about, and you'll probably notice some important references that weren't on your initial list of 10 papers. Ideally, you'll also start to notice how the topic has changed over time and you may get  ideas of future work that you could do on the topic.
+
+To help you make progress on your project or to give you an excuse to learn about a new topic, for this part you should \blu{write a literature survey of at least 10 academic papers} on a particular topic. While your personal notes on the papers may be longer, the survey should be \blu{at most 4 pages of text (excluding references/tables/figures)} in a format similar to the one for this document. Some logical components of a literature survey might be:
+\items{
+\item A description of the overall topic, and the key themes/trends across the papers.
+\item A short high-level description of what was explored in each paper. For example, describe the problem being addressed, the key components of the proposed solution, and how it was evaluated. In addition, it is important to comment on the \emph{why} questions: why is this problem important and why would this particular solution method make progress on it? It's also useful to comment on the strengths and weaknesses of the various works, and it's particularly nice if you can show how some works address the weaknesses of prior works (or introduce new weaknesses).
+\item One or more logical ``groupings'' of the papers. This could be in terms of the variant of the topic that they address, in terms of the solution techniques used, or in chronological terms.
+}
+
+Some advice on choosing the topic:
+\items{
+\item The most logical/easy topic for your literature survey is a topic related to your course project, given that your final report will need a (shorter) literature survey included.
+\item If you are an undergrad, or a masters student without a research project yet, you may alternately want to choose a general area (like variance-reduced stochastic gradient, non-Gaussian graphical models, recurrent neural networks, matrix factorization, neural artistic style transfer, Bayesian optimization, transformer networks, etc.) as your topic.
+\item If you are a masters student that already has a thesis project, it could make sense to do a survey on a topic where ML intersects with your thesis (or where ML \emph{could} intersect your thesis).
+\item If you are a PhD student, I would recommend using this an excuse to learn about a \emph{completely different} topic than what you normally work on. Choose something hard that you would like to learn about, but previously haven't been able to justify spending the time exploring carefully. This can be invaluable to your future research, because during/after your PhD it often becomes hard to allocate time to learn completely new topics.
+}
+
+
+
+ 
+\end{document}
