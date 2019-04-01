@@ -1,6 +1,6 @@
 # Load X and y variable
 using JLD
-data = load("PINS.jld")
+data = load("../data/PINS.jld")
 X = data["X"]
 
 (n,d) = size(X)
@@ -14,7 +14,13 @@ k = 10
 #   - in column 2 you put the second node on the edge
 #   For example, if you just want the edges 1-2 and 1-3, use:
 #   - edges = [1 2;1 3]
-E = zeros(0,2) # Empty graph
+# E = zeros(0,2) # Empty graph
+
+# 1.2.3
+# E = [1 2;2 3;3 4] # Chain structured graph
+
+# 1.2.4
+E = [1 2;1 3;1 4;2 3;2 4;3 4] # complete graph
 nEdges = size(E,1)
 
 # Compute sufficient statistics
@@ -46,5 +52,21 @@ xc = [1 2 3 0]
 @show nodeMarg_cond[4,:]
 
 # Sampling
-samples = UGM_Sample(w,v,E,20)
-@show(samples)
+n_samples = 1000
+samples = UGM_Sample(w,v,E,n_samples)
+
+count = 0
+for i = 1:n_samples
+	flag = true
+	for j = 1:d
+		if(samples[i, j]!=j)
+			flag = false
+		end
+	end
+	if(flag)
+		global count += 1
+	end
+end
+
+@show(count / n_samples)
+# @show(samples)
