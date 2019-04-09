@@ -16,10 +16,10 @@ k = 10
 #   - edges = [1 2;1 3]
 # E = zeros(0,2) # Empty graph
 
-# 1.2.3
+# problem 1.2.3
 # E = [1 2;2 3;3 4] # Chain structured graph
 
-# 1.2.4
+# problem 1.2.4
 E = [1 2;1 3;1 4;2 3;2 4;3 4] # complete graph
 nEdges = size(E,1)
 
